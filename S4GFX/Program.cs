@@ -10,10 +10,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace S4GFX
-{
-    class Program
-	{
+namespace S4GFX {
+    class Program {
 		static ICollectionFileReader gfxFile;
 		static SndFileReader sndFile;
 
@@ -26,8 +24,8 @@ namespace S4GFX
 			Console.WriteLine("Exported sounds will be saved to the \"export/snd/\" folder. Run with --snd to extract sound files.");
 			Console.WriteLine("============================================================");
 
-			if (args.Contains("--snd"))
-			{ // --snd argument has been passed to the exe
+			if (args.Contains("--snd")) {
+				// --snd argument has been passed to the exe
 				sndFile = LoadSnd("Snd/0");
 				if (sndFile == null)
 					Console.WriteLine("Error: Cannot export sounds because 0.sil or 0.snd is not available.");
@@ -45,29 +43,24 @@ namespace S4GFX
 				case "1":
 					AskRemoveShadowsAndAlpha();
 
-				//Parallel.For(0, 45, (i) => {
-				//	var gfx = Load("GFX/" + i);
-				//	if (gfx == null)
-				//		return;
-
-				//	SaveAllBitmaps("GFX/" + i, gfx);
-				//});
-				for (int i = 0; i < 45; i++) {
-					Load("GFX/" + i);
-					SaveAllBitmaps("GFX/" + i);
-				}
-				break;
+					for (int i = 0; i < 45; i++) {
+						var gfx = Load("GFX/" + i);
+						if (gfx == null)
+							return;
+						SaveAllBitmaps("GFX/" + i);
+					}
+					break;
 
 				default:
-				case "2": { 
+				case "2": {
 					REPEAT:
 					Console.WriteLine("What group would you like to export the images from?");
 					string choiceGroup = Console.ReadLine();
 
 					string path = "GFX/" + choiceGroup;
-					if (File.Exists(path + ".gfx") == false && File.Exists(path + ".gh5") == false) {
+					if (!File.Exists(path + ".gfx") && !File.Exists(path + ".gh5")) {
 						Console.WriteLine($"Group {path} does not exist!");
-							goto REPEAT;
+						goto REPEAT;
 					}
 
 					AskRemoveShadowsAndAlpha();
@@ -82,7 +75,7 @@ namespace S4GFX
 					string choiceGroup = Console.ReadLine();
 
 					string path = "GFX/" + choiceGroup;
-					if (File.Exists(path + ".gfx") == false && File.Exists(path + ".gh5") == false) {
+					if (!File.Exists(path + ".gfx") && !File.Exists(path + ".gh5")) {
 						Console.WriteLine($"Group {path} does not exist!");
 						goto REPEAT_SINGLE_GROUP;
 					}
@@ -119,7 +112,7 @@ namespace S4GFX
 					string choiceGroup = Console.ReadLine();
 
 					string path = "GFX/" + choiceGroup;
-					if (File.Exists(path + ".gfx") == false && File.Exists(path + ".gh5") == false) {
+					if (!File.Exists(path + ".gfx") && !File.Exists(path + ".gh5")) {
 						Console.WriteLine($"Group {path} does not exist!");
 						goto REPEAT_SINGLE_GROUP;
 					}
@@ -213,15 +206,12 @@ namespace S4GFX
 			}
 		}
 
-		static public SndFileReader LoadSnd(string fileId)
-		{
-			bool sil = File.Exists(fileId + ".sil");
-			if (sil == false) {
+		static public SndFileReader LoadSnd(string fileId) {
+			if (!File.Exists(fileId + ".sil")) {
 				return null;
 			}
 
-			bool snd = File.Exists(fileId + ".snd");
-			if (!snd) {
+			if (!File.Exists(fileId + ".snd")) {
 				return null;
 			}
 
@@ -238,21 +228,16 @@ namespace S4GFX
 		}
 
 		static public ICollectionFileReader Load(string fileId) {
-
-			bool gfx = File.Exists(fileId + ".gfx");
-			bool gh = File.Exists(fileId + ".gh6");
-
-			if (gh) {
+			if (File.Exists(fileId + ".gh6")) {
 				return DoLoadGH(fileId);
 			}
 
-			if (gfx == false) {
+			if (!File.Exists(fileId + ".gfx")) {
 				return null;
 			} 
 
 			bool pil = File.Exists(fileId + ".pil");
 			bool jil = File.Exists(fileId + ".jil");
-
 
 			return DoLoad(fileId, pil, jil);
 		}
@@ -272,7 +257,7 @@ namespace S4GFX
 		static public ICollectionFileReader DoLoad(string fileId, bool usePli, bool useJil) {
 			//Console.WriteLine($"Using .jil={useJil}");
 
-			var gfx = new BinaryReader(File.Open(fileId + ".gfx", FileMode.Open),Encoding.Default, true);
+			var gfx = new BinaryReader(File.Open(fileId + ".gfx", FileMode.Open), Encoding.Default, true);
 			var gil = new BinaryReader(File.Open(fileId + ".gil", FileMode.Open), Encoding.Default, true);
 
 			BinaryReader paletteIndex, palette, directionIndex = null, jobIndex = null;
@@ -289,8 +274,6 @@ namespace S4GFX
 				directionIndex = new BinaryReader(File.Open(fileId + ".dil", FileMode.Open), Encoding.Default, true);
 				jobIndex = new BinaryReader(File.Open(fileId + ".jil", FileMode.Open), Encoding.Default, true);
 			}
-
-			
 
 			var gfxIndexList = new GilFileReader(gil);
 			var paletteIndexList = new PilFileReader(paletteIndex);
@@ -324,7 +307,7 @@ namespace S4GFX
 				try {
 					Directory.CreateDirectory("export/" + path);
 					File.WriteAllBytes($"export/{path}/{i}.wav", file.GetSound(i));
-				}catch(Exception e) {
+				} catch(Exception e) {
 					Console.WriteLine(e.Message);
 					Console.WriteLine(e.StackTrace);
 				}
@@ -341,7 +324,7 @@ namespace S4GFX
 			for (int i = 0; i < file.GetImageCount(); i++) {
 				try {
 					SaveToBitmap(path, i, file);
-				}catch(Exception e) {
+				} catch(Exception e) {
 					Console.WriteLine(e.Message);
 					Console.WriteLine(e.StackTrace);
 				}
